@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/nexus-shell/nexus/cli/internal/project"
-	"github.com/nexus-shell/nexus/cli/internal/ui"
+	"github.com/alifkhansen01/Nexus/cli/internal/project"
+	"github.com/alifkhansen01/Nexus/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
 

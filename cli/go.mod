@@ -1,4 +1,4 @@
-module github.com/nexus-shell/nexus/cli
+module github.com/alifkhansen01/Nexus/cli
 
 go 1.23
 
