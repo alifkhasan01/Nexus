@@ -1,0 +1,39 @@
+# Build output
+build/
+*.o
+*.a
+*.so
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+_deps/
+
+# Qt / MOC generated
+*_automoc.cpp
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+*.qmlc
+
+# Go CLI binary (built artifact, not source)
+cli/nexus
+cli/nexus-*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+
+# Kiro
+.kiro/

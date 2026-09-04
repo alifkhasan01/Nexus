@@ -1,0 +1,4 @@
+module Nexus.Settings
+Settings         1.0 Settings.qml
+SettingsSidebar  1.0 SettingsSidebar.qml
+SettingsPage     1.0 SettingsPage.qml

@@ -1,0 +1,3 @@
+module Nexus.Wallpaper
+WallpaperPicker 1.0 WallpaperPicker.qml
+WallpaperThumb  1.0 WallpaperThumb.qml

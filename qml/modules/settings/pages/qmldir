@@ -1,0 +1,6 @@
+module Nexus.Settings.Pages
+AppearancePage    1.0 AppearancePage.qml
+BarPage           1.0 BarPage.qml
+DockPage          1.0 DockPage.qml
+NotificationsPage 1.0 NotificationsPage.qml
+PowerPage         1.0 PowerPage.qml

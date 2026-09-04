@@ -1,0 +1,11 @@
+module Nexus.Components
+NxButton      1.0 NxButton.qml
+NxIconButton  1.0 NxIconButton.qml
+NxCard        1.0 NxCard.qml
+NxSlider      1.0 NxSlider.qml
+NxToggle      1.0 NxToggle.qml
+NxSeparator   1.0 NxSeparator.qml
+NxTooltip     1.0 NxTooltip.qml
+NxProgressBar 1.0 NxProgressBar.qml
+NxPopup       1.0 NxPopup.qml
+NxScrollView  1.0 NxScrollView.qml
