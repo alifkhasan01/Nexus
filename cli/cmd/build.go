@@ -6,16 +6,16 @@ import (
 	"runtime"
 	"strconv"
 
+	internalbuild "github.com/nexus-shell/nexus/cli/internal/build"
 	"github.com/nexus-shell/nexus/cli/internal/project"
-	"github.com/nexus-shell/nexus/cli/internal/runner"
 	"github.com/nexus-shell/nexus/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
 
 var (
-	buildRelease bool
-	buildJobs    int
-	buildVerbose bool
+	buildRelease     bool
+	buildJobs        int
+	buildVerbose     bool
 	buildNoConfigure bool
 )
 
@@ -42,7 +42,6 @@ func runBuild(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	buildDir := project.BuildDir(root)
 	buildType := "Debug"
 	if buildRelease {
 		buildType = "Release"
@@ -50,66 +49,25 @@ func runBuild(_ *cobra.Command, _ []string) error {
 
 	ui.Header(fmt.Sprintf("Building Nexus (%s)", buildType))
 	ui.Label("Project root", root)
-	ui.Label("Build dir", buildDir)
+	ui.Label("Build dir", project.BuildDir(root))
 	ui.Label("Build type", buildType)
 	ui.Label("Jobs", strconv.Itoa(buildJobs))
 	fmt.Println()
 
-	// ── Configure ────────────────────────────────────────────
-	needsConfigure := buildNoConfigure == false &&
-		(!project.Exists(buildDir) || !project.Exists(buildDir+"/CMakeCache.txt"))
-
-	if buildNoConfigure && !project.Exists(buildDir+"/CMakeCache.txt") {
-		ui.Warn("--no-configure set but build dir has no CMakeCache.txt — forcing configure")
-		needsConfigure = true
+	opts := internalbuild.Options{
+		Release:     buildRelease,
+		Jobs:        buildJobs,
+		Verbose:     buildVerbose,
+		NoConfigure: buildNoConfigure,
 	}
 
-	if needsConfigure {
-		ui.Step("Configuring with CMake…")
-
-		configArgs := []string{
-			"-B", buildDir,
-			"-S", root,
-			"-DCMAKE_BUILD_TYPE=" + buildType,
-			"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		}
-
-		// Prefer Ninja if available
-		if runner.Which("ninja") {
-			configArgs = append(configArgs, "-GNinja")
-			ui.Info("Generator: Ninja")
-		} else {
-			ui.Info("Generator: Unix Makefiles")
-		}
-
-		if err := runner.Run(root, "cmake", configArgs...); err != nil {
-			return fmt.Errorf("cmake configure failed: %w", err)
-		}
-		ui.Success("Configure done")
-		fmt.Println()
-	} else {
-		ui.Info("Build directory exists — skipping configure (use --no-configure=false to force)")
-	}
-
-	// ── Compile ───────────────────────────────────────────────
-	ui.Step("Compiling…")
-
-	compileArgs := []string{
-		"--build", buildDir,
-		"--parallel", strconv.Itoa(buildJobs),
-	}
-	if buildVerbose {
-		compileArgs = append(compileArgs, "--verbose")
-	}
-
-	if err := runner.Run(root, "cmake", compileArgs...); err != nil {
-		return fmt.Errorf("build failed: %w", err)
+	if err := internalbuild.Run(root, opts); err != nil {
+		return err
 	}
 
 	fmt.Println()
 	binaryPath := project.BinaryPath(root)
 	if project.Exists(binaryPath) {
-		// Get binary size
 		if info, err := os.Stat(binaryPath); err == nil {
 			sizeMB := float64(info.Size()) / 1024 / 1024
 			ui.Success("Build complete — nexus (%.1f MB)", sizeMB)

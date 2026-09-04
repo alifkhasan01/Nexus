@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 
 	"github.com/nexus-shell/nexus/cli/cmd"
@@ -9,7 +10,11 @@ import (
 
 func main() {
 	if err := cmd.Execute(); err != nil {
-		ui.Error("%v", err)
+		// Only print when the subcommand hasn't already shown the error.
+		var silent cmd.SilentError
+		if !errors.As(err, &silent) {
+			ui.Error("%v", err)
+		}
 		os.Exit(1)
 	}
 }

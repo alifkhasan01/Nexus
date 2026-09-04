@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
+	"path/filepath"
 
 	"github.com/nexus-shell/nexus/cli/internal/project"
 	"github.com/nexus-shell/nexus/cli/internal/ui"
@@ -36,7 +38,7 @@ func runClean(_ *cobra.Command, _ []string) error {
 		return nil
 	}
 
-	// Get size for reporting
+	// Get size for reporting.
 	size, _ := dirSize(buildDir)
 	sizeMB := float64(size) / 1024 / 1024
 
@@ -64,31 +66,24 @@ func runClean(_ *cobra.Command, _ []string) error {
 	return nil
 }
 
-// dirSize returns the total size in bytes of all files under path.
+// dirSize returns the total size in bytes of all regular files under path.
+// Uses filepath.WalkDir so it correctly handles symlinks and permission errors
+// (unreadable entries are skipped with a warning rather than silently ignored).
 func dirSize(path string) (int64, error) {
 	var total int64
-	err := walkDir(path, func(info os.FileInfo) {
-		if !info.IsDir() {
+	err := filepath.WalkDir(path, func(_ string, d fs.DirEntry, err error) error {
+		if err != nil {
+			// Skip entries we can't stat (e.g. permission denied) without aborting.
+			return nil
+		}
+		if !d.IsDir() {
+			info, err := d.Info()
+			if err != nil {
+				return nil
+			}
 			total += info.Size()
 		}
+		return nil
 	})
 	return total, err
-}
-
-func walkDir(path string, fn func(os.FileInfo)) error {
-	entries, err := os.ReadDir(path)
-	if err != nil {
-		return err
-	}
-	for _, e := range entries {
-		info, err := e.Info()
-		if err != nil {
-			continue
-		}
-		fn(info)
-		if e.IsDir() {
-			_ = walkDir(path+"/"+e.Name(), fn)
-		}
-	}
-	return nil
 }

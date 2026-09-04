@@ -1,9 +1,16 @@
 package cmd
 
 import (
-	"github.com/nexus-shell/nexus/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
+
+// SilentError wraps an error that has already been displayed to the user by a
+// subcommand (e.g. via ui.Error). main.go checks for this type to avoid
+// printing the same message a second time.
+type SilentError struct{ Cause error }
+
+func (s SilentError) Error() string { return s.Cause.Error() }
+func (s SilentError) Unwrap() error { return s.Cause }
 
 var rootCmd = &cobra.Command{
 	Use:   "nexus",
@@ -11,11 +18,12 @@ var rootCmd = &cobra.Command{
 	Long: `nexus — developer tooling for the Nexus Wayland desktop shell.
 
 Commands:
-  check   Verify all build dependencies are present
-  build   Configure and compile the project
-  clean   Remove the build directory
-  run     Launch the compiled shell binary
-  dev     Build, run, and watch for file changes (hot-reload)`,
+  check    Verify all build dependencies are present
+  build    Configure and compile the project
+  clean    Remove the build directory
+  run      Launch the compiled shell binary
+  dev      Build, run, and watch for file changes (hot-reload)
+  install  Install the binary to ~/.local/bin`,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
@@ -26,18 +34,10 @@ func Execute() error {
 }
 
 func init() {
-	// Persistent flags available on all commands
-	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-		// Print a blank line before any command output for breathing room
-		if cmd.Name() != "help" {
-			_ = args
-		}
-	}
-
-	// Suppress cobra's default "Error:" prefix — we print our own
+	// Suppress cobra's default "Error:" prefix — we print our own.
 	rootCmd.SetErrPrefix("")
 
-	// Custom usage template with colour hints
+	// Custom usage template with colour hints.
 	rootCmd.SetHelpTemplate(`{{.Long}}
 
 Usage:
@@ -61,6 +61,4 @@ Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
 
 Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
 `)
-
-	_ = ui.Info // ensure ui package is used (avoids import cycle lint noise)
 }
