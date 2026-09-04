@@ -67,7 +67,7 @@ The `nexus` CLI handles building, running, and watching the project. Install it 
 **Via `go install` (recommended):**
 
 ```bash
-go install github.com/alifkhansen01/Nexus/cli/cmd/nexus@latest
+go install github.com/alifkhasan01/Nexus/cli/cmd/nexus@latest
 ```
 
 The binary is placed in `$GOPATH/bin` (usually `~/go/bin`). Make sure that directory is in your `$PATH`:
