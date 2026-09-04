@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/nexus-shell/nexus/cli/internal/runner"
@@ -26,6 +27,44 @@ type dep struct {
 	binary   string
 	versionF func() string // returns version string or ""
 	required bool
+	minVer   string // minimum required version (semver prefix, e.g. "3.16"); empty = no check
+}
+
+// parseVer parses "MAJOR.MINOR.PATCH" into [3]int. Extra trailing components
+// and non-numeric suffixes are tolerated.
+func parseVer(s string) (major, minor, patch int) {
+	parts := strings.SplitN(s, ".", 3)
+	if len(parts) > 0 {
+		major, _ = strconv.Atoi(parts[0])
+	}
+	if len(parts) > 1 {
+		minor, _ = strconv.Atoi(parts[1])
+	}
+	if len(parts) > 2 {
+		// Strip non-numeric suffix (e.g. "1-rc1")
+		p := parts[2]
+		for i, c := range p {
+			if c < '0' || c > '9' {
+				p = p[:i]
+				break
+			}
+		}
+		patch, _ = strconv.Atoi(p)
+	}
+	return
+}
+
+// meetsMinVer returns true if version >= min (both as "MAJOR.MINOR[.PATCH]").
+func meetsMinVer(version, min string) bool {
+	vMaj, vMin, vPat := parseVer(version)
+	mMaj, mMin, mPat := parseVer(min)
+	if vMaj != mMaj {
+		return vMaj > mMaj
+	}
+	if vMin != mMin {
+		return vMin > mMin
+	}
+	return vPat >= mPat
 }
 
 func runCheck(_ *cobra.Command, _ []string) error {
@@ -48,6 +87,7 @@ func runCheck(_ *cobra.Command, _ []string) error {
 				return out
 			},
 			required: true,
+			minVer:   "3.16",
 		},
 		{
 			name:   "GCC",
@@ -105,14 +145,28 @@ func runCheck(_ *cobra.Command, _ []string) error {
 				return ""
 			},
 			required: true,
+			minVer:   "6.5",
 		},
 		{
 			name:   "Qt6 (qmlscene)",
 			binary: "qmlscene",
 			versionF: func() string {
-				// qmlscene is in qt6-tools on most distros
 				if runner.Which("qmlscene") {
 					return "found"
+				}
+				return ""
+			},
+			required: false,
+		},
+		{
+			name:   "QuickShell",
+			binary: "quickshell",
+			versionF: func() string {
+				// quickshell may not have a --version flag; just probe presence
+				for _, bin := range []string{"quickshell", "qs"} {
+					if runner.Which(bin) {
+						return "found"
+					}
 				}
 				return ""
 			},
@@ -179,11 +233,11 @@ func runCheck(_ *cobra.Command, _ []string) error {
 	}
 
 	fmt.Println()
-	fmt.Printf("  %-20s %-10s %s\n", "Dependency", "Status", "Version")
-	fmt.Printf("  %-20s %-10s %s\n",
-		strings.Repeat("─", 18),
+	fmt.Printf("  %-22s %-10s %s\n", "Dependency", "Status", "Version")
+	fmt.Printf("  %-22s %-10s %s\n",
+		strings.Repeat("─", 20),
 		strings.Repeat("─", 8),
-		strings.Repeat("─", 12),
+		strings.Repeat("─", 14),
 	)
 
 	allRequired := true
@@ -191,7 +245,15 @@ func runCheck(_ *cobra.Command, _ []string) error {
 
 	for _, d := range deps {
 		found := runner.Which(d.binary)
+
+		// QuickShell might be under "qs" — probe both.
+		if !found && d.binary == "quickshell" {
+			found = runner.Which("qs")
+		}
+
 		version := ""
+		versionOK := true
+
 		if found {
 			version = d.versionF()
 			if version == "" {
@@ -200,11 +262,29 @@ func runCheck(_ *cobra.Command, _ []string) error {
 			if d.binary == "gcc" || d.binary == "clang" {
 				hasCompiler = true
 			}
+			// Validate minimum version when specified and version is parseable.
+			if d.minVer != "" && version != "found" {
+				if !meetsMinVer(version, d.minVer) {
+					versionOK = false
+				}
+			}
 		}
-		if d.required && !found {
+
+		if d.required && (!found || !versionOK) {
 			allRequired = false
 		}
-		ui.CheckRow(d.name, version, found)
+
+		// Annotate version with minimum requirement hint.
+		displayVer := version
+		if found && d.minVer != "" && version != "found" {
+			if versionOK {
+				displayVer = version + " (≥ " + d.minVer + " ✓)"
+			} else {
+				displayVer = version + " (need ≥ " + d.minVer + " ✗)"
+			}
+		}
+
+		ui.CheckRow(d.name, displayVer, found && versionOK)
 	}
 
 	fmt.Println()
@@ -230,6 +310,6 @@ func runCheck(_ *cobra.Command, _ []string) error {
 		return nil
 	}
 
-	ui.Error("Some required dependencies are missing")
-	return fmt.Errorf("dependency check failed")
+	ui.Error("Some required dependencies are missing or outdated")
+	return SilentError{Cause: fmt.Errorf("dependency check failed")}
 }

@@ -1,5 +1,5 @@
-# Build output
-build/
+# Build output (CMake build directory at project root only)
+/build/
 *.o
 *.a
 *.so

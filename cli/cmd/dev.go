@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	internalbuild "github.com/nexus-shell/nexus/cli/internal/build"
 	"github.com/nexus-shell/nexus/cli/internal/project"
-	"github.com/nexus-shell/nexus/cli/internal/runner"
 	"github.com/nexus-shell/nexus/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
@@ -21,6 +21,9 @@ var (
 	devSkipBuild  bool
 	devNoWatch    bool
 	devDebounceMs int
+	devRelease    bool
+	devJobs       int
+	devVerbose    bool
 )
 
 var devCmd = &cobra.Command{
@@ -38,6 +41,9 @@ func init() {
 	devCmd.Flags().BoolVar(&devSkipBuild, "skip-build", false, "Skip initial build step")
 	devCmd.Flags().BoolVar(&devNoWatch, "no-watch", false, "Run without file watcher")
 	devCmd.Flags().IntVar(&devDebounceMs, "debounce", 300, "Debounce delay in ms before reacting to file changes")
+	devCmd.Flags().BoolVar(&devRelease, "release", false, "Build with CMAKE_BUILD_TYPE=Release")
+	devCmd.Flags().IntVarP(&devJobs, "jobs", "j", runtime.NumCPU(), "Parallel compile jobs")
+	devCmd.Flags().BoolVarP(&devVerbose, "verbose", "v", false, "Verbose build output")
 	rootCmd.AddCommand(devCmd)
 }
 
@@ -47,15 +53,22 @@ func runDev(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
+	buildType := "Debug"
+	if devRelease {
+		buildType = "Release"
+	}
+
 	ui.Header("Nexus Dev Mode")
 	ui.Label("Project root", root)
+	ui.Label("Build type", buildType)
+	ui.Label("Jobs", fmt.Sprintf("%d", devJobs))
 	ui.Label("Watch", fmt.Sprintf("%v", !devNoWatch))
 	fmt.Println()
 
-	// ── Initial build ─────────────────────────────────────────
+	// ── Initial build ─────────────────────────────────────────────────────────
 	if !devSkipBuild {
-		ui.Step("Building (Debug)…")
-		if err := doBuild(root, false); err != nil {
+		ui.Step("Building (%s)…", buildType)
+		if err := devBuild(root); err != nil {
 			return fmt.Errorf("initial build failed: %w", err)
 		}
 		ui.Success("Build complete")
@@ -67,7 +80,7 @@ func runDev(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("binary not found at %s", binary)
 	}
 
-	// ── Launch process ────────────────────────────────────────
+	// ── Launch process ────────────────────────────────────────────────────────
 	proc, err := startNexus(root, binary)
 	if err != nil {
 		return err
@@ -77,11 +90,10 @@ func runDev(_ *cobra.Command, _ []string) error {
 	fmt.Println()
 
 	if devNoWatch {
-		// Just wait for the process to exit
 		return waitProc(proc)
 	}
 
-	// ── File watcher ──────────────────────────────────────────
+	// ── File watcher ──────────────────────────────────────────────────────────
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return fmt.Errorf("failed to create watcher: %w", err)
@@ -105,7 +117,7 @@ func runDev(_ *cobra.Command, _ []string) error {
 	}
 	fmt.Println()
 
-	// ── Event loop ────────────────────────────────────────────
+	// ── Event loop ────────────────────────────────────────────────────────────
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
@@ -143,6 +155,16 @@ func runDev(_ *cobra.Command, _ []string) error {
 				continue
 			}
 
+			// Re-watch newly created directories so nested additions are tracked.
+			if event.Op&fsnotify.Create != 0 {
+				if info, err := os.Stat(event.Name); err == nil && info.IsDir() {
+					if err := watchTree(watcher, event.Name); err == nil {
+						ui.Info("Now watching new directory: %s", event.Name)
+					}
+					continue
+				}
+			}
+
 			ext := filepath.Ext(event.Name)
 			switch ext {
 			case ".qml":
@@ -165,9 +187,9 @@ func runDev(_ *cobra.Command, _ []string) error {
 					<-procDone
 				}
 
-				if err := doBuild(root, false); err != nil {
+				if err := devBuild(root); err != nil {
 					ui.Error("Rebuild failed: %v — waiting for next change", err)
-					// Re-launch even if build failed to keep watcher alive
+					// Relaunch even on failure to keep watcher alive
 					proc, err = startNexus(root, binary)
 					if err != nil {
 						return err
@@ -217,34 +239,13 @@ func runDev(_ *cobra.Command, _ []string) error {
 	}
 }
 
-// doBuild runs cmake --build with debug type and returns any error.
-func doBuild(root string, release bool) error {
-	buildDir := project.BuildDir(root)
-	buildType := "Debug"
-	if release {
-		buildType = "Release"
-	}
-
-	// Configure if needed
-	if !project.Exists(buildDir + "/CMakeCache.txt") {
-		args := []string{
-			"-B", buildDir,
-			"-S", root,
-			"-DCMAKE_BUILD_TYPE=" + buildType,
-			"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		}
-		if runner.Which("ninja") {
-			args = append(args, "-GNinja")
-		}
-		if err := runner.Run(root, "cmake", args...); err != nil {
-			return fmt.Errorf("configure: %w", err)
-		}
-	}
-
-	return runner.Run(root, "cmake",
-		"--build", buildDir,
-		"--parallel", fmt.Sprintf("%d", parallelJobs()),
-	)
+// devBuild runs a build using the flags set on the dev command.
+func devBuild(root string) error {
+	return internalbuild.Run(root, internalbuild.Options{
+		Release: devRelease,
+		Jobs:    devJobs,
+		Verbose: devVerbose,
+	})
 }
 
 // startNexus launches the nexus binary and returns the running *exec.Cmd.
@@ -279,29 +280,15 @@ func waitProc(cmd *exec.Cmd) error {
 	}
 }
 
-// watchTree adds all subdirectories of root to the watcher.
+// watchTree recursively adds all subdirectories under root to the watcher.
 func watchTree(w *fsnotify.Watcher, root string) error {
-	if err := w.Add(root); err != nil {
-		return err
-	}
-	entries, err := os.ReadDir(root)
-	if err != nil {
-		return err
-	}
-	for _, e := range entries {
-		if e.IsDir() {
-			if err := watchTree(w, filepath.Join(root, e.Name())); err != nil {
-				return err
-			}
+	return filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return nil // skip unreadable entries
 		}
-	}
-	return nil
-}
-
-// parallelJobs returns the number of parallel build jobs.
-func parallelJobs() int {
-	if buildJobs > 0 {
-		return buildJobs
-	}
-	return runtime.NumCPU()
+		if d.IsDir() {
+			return w.Add(path)
+		}
+		return nil
+	})
 }
