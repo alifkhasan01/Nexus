@@ -64,11 +64,24 @@ Nexus sits on top of your Wayland compositor (Hyprland, Niri, Sway, etc.) and pr
 
 The `nexus` CLI handles building, running, and watching the project. Install it once, then use it for everything.
 
+**Via `go install` (recommended):**
+
+```bash
+go install github.com/alifkhansen01/Nexus/cli/cmd/nexus@latest
+```
+
+The binary is placed in `$GOPATH/bin` (usually `~/go/bin`). Make sure that directory is in your `$PATH`:
+
+```bash
+export PATH="$HOME/go/bin:$PATH"
+```
+
 **From source:**
 
 ```bash
-cd cli
-go build -o nexus .
+git clone https://github.com/alifkhansen01/Nexus.git
+cd Nexus/cli
+go build -o nexus ./cmd/nexus/
 sudo mv nexus /usr/local/bin/
 ```
 
@@ -84,7 +97,7 @@ nexus --help
 nexus check
 ```
 
-This probes for cmake, Qt6, compiler, awww, grim, and other tools — and tells you what's missing.
+This probes for cmake, Qt6, compiler, QuickShell, awww, grim, and other tools — validates minimum versions and tells you what's missing.
 
 ---
 
@@ -134,9 +147,12 @@ nexus dev
 **Options:**
 
 ```bash
-nexus dev --skip-build     # skip initial build, just run + watch
-nexus dev --no-watch       # run without file watcher
-nexus dev --debounce 500   # wait 500ms before reacting to changes (default: 300ms)
+nexus dev --skip-build        # skip initial build, just run + watch
+nexus dev --no-watch          # run without file watcher
+nexus dev --debounce 500      # wait 500ms before reacting to changes (default: 300ms)
+nexus dev --release           # build with Release type instead of Debug
+nexus dev -j4                 # limit parallel compile jobs
+nexus dev --verbose           # show full compiler output during rebuilds
 ```
 
 ---
@@ -177,7 +193,13 @@ This removes the `build/` directory entirely, forcing a full reconfigure on the 
 | `nexus dev` | Build + run + hot-reload watcher |
 | `nexus dev --skip-build` | Skip initial build step |
 | `nexus dev --no-watch` | Run without file watcher |
+| `nexus dev --release` | Dev loop with Release build type |
+| `nexus dev -j N` | Limit parallel jobs during rebuilds |
+| `nexus dev --verbose` | Verbose output during rebuilds |
 | `nexus run` | Launch the compiled shell |
+| `nexus install` | Install binary to `~/.local/bin` |
+| `nexus install --prefix /usr` | Install to a custom prefix |
+| `nexus install --copy-only` | Copy binary only, skip cmake --install |
 | `nexus clean` | Remove build directory |
 | `nexus clean --force` | Remove without confirmation |
 
@@ -188,9 +210,10 @@ This removes the `build/` directory entirely, forcing a full reconfigure on the 
 ```
 nexus/
 ├── cli/                  # Developer CLI (Go)
-│   ├── main.go
-│   ├── cmd/              # CLI commands (build, dev, run, check, clean)
-│   └── internal/         # Shared helpers (ui, runner, project)
+│   ├── cmd/
+│   │   ├── nexus/        # Entry point — go install lands here
+│   │   └── *.go          # CLI commands (build, dev, run, check, clean, install)
+│   └── internal/         # Shared helpers (ui, runner, project, build)
 ├── src/                  # C++ backend
 │   ├── services/         # AudioService, BatteryService, NetworkService, …
 │   ├── compositor/       # CompositorService + Hyprland backend

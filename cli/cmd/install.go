@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nexus-shell/nexus/cli/internal/project"
-	"github.com/nexus-shell/nexus/cli/internal/runner"
-	"github.com/nexus-shell/nexus/cli/internal/ui"
+	"github.com/alifkhansen01/Nexus/cli/internal/project"
+	"github.com/alifkhansen01/Nexus/cli/internal/runner"
+	"github.com/alifkhansen01/Nexus/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
 

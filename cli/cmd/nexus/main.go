@@ -4,8 +4,8 @@ import (
 	"errors"
 	"os"
 
-	"github.com/nexus-shell/nexus/cli/cmd"
-	"github.com/nexus-shell/nexus/cli/internal/ui"
+	"github.com/alifkhansen01/Nexus/cli/cmd"
+	"github.com/alifkhansen01/Nexus/cli/internal/ui"
 )
 
 func main() {
