@@ -54,7 +54,7 @@ Nexus sits on top of your Wayland compositor (Hyprland, Niri, Sway, etc.) and pr
 
 | Tool | Purpose |
 |---|---|
-| `swww` | Wallpaper daemon |
+| `awww` | Wallpaper daemon |
 | `grim` + `slurp` | Screenshots |
 | `wf-recorder` | Screen recording |
 
@@ -84,7 +84,7 @@ nexus --help
 nexus check
 ```
 
-This probes for cmake, Qt6, compiler, swww, grim, and other tools — and tells you what's missing.
+This probes for cmake, Qt6, compiler, awww, grim, and other tools — and tells you what's missing.
 
 ---
 

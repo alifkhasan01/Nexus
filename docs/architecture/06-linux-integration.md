@@ -75,9 +75,9 @@ Everything below requires an external daemon, system service, or C++ bridge.
 
 **Solution:** Wayland wallpaper daemon.
 
-- Recommended: `swww` (smooth transitions, IPC control)
+- Recommended: `awww` (smooth transitions, IPC control, successor to swww)
 - Alternative: `mpvpaper`, `swaybg`
-- The shell sets the wallpaper by calling the daemon's IPC (e.g. `swww img`) via `Quickshell.Io.Process`
+- The shell sets the wallpaper by calling the daemon's IPC (e.g. `awww img`) via `Quickshell.Io.Process`
 - QuickShell has no built-in wallpaper-setting capability
 
 ---
@@ -202,7 +202,7 @@ Everything below requires an external daemon, system service, or C++ bridge.
 | Brightness | — | logind D-Bus or sysfs bridge |
 | Screenshot | — | `grim`, `slurp` |
 | Screen recording | — | `wf-recorder` / `gpu-screen-recorder` |
-| Wallpaper | — | `swww` or equivalent |
+| Wallpaper | — | `awww` or equivalent |
 | Power actions | — | logind D-Bus bridge |
 | Non-Hyprland compositor | — | Protocol/IPC bridge |
 | App indexing | — | XDG `.desktop` parser (C++) |
@@ -230,7 +230,7 @@ The following must be installed and running for the full shell experience.
 
 - `grim` — screenshot
 - `slurp` — region selection
-- `swww` — wallpaper
+- `awww` — wallpaper
 - `wf-recorder` or `gpu-screen-recorder` — screen recording
 
 ### Recommended companions

@@ -15,8 +15,8 @@ import "../../components"
 //   Grid:   WallpaperThumb cards, async-loaded from directory
 //   Footer: current selection label + Apply button
 //
-// Backend: calls `swww img <path>` via Quickshell.Io.Process.
-//          Falls back to `swaybg -m fill -i <path>` if swww
+// Backend: calls `awww img <path>` via Quickshell.Io.Process.
+//          Falls back to `swaybg -m fill -i <path>` if awww
 //          is not available.
 //
 // Directory scanning uses Quickshell.Io.FileView to list
@@ -98,12 +98,12 @@ PanelWindow {
         }
     }
 
-    // ── Apply wallpaper via swww ──────────────────────────────
+    // ── Apply wallpaper via awww ──────────────────────────────
     Process {
         id: applyProcess
         property string pendingPath: ""
 
-        command: ["swww", "img",
+        command: ["awww", "img",
             "--transition-type", "fade",
             "--transition-duration", "0.8",
             applyProcess.pendingPath

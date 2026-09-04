@@ -143,10 +143,10 @@ func runCheck(_ *cobra.Command, _ []string) error {
 			required: true,
 		},
 		{
-			name:   "swww",
-			binary: "swww",
+			name:   "awww",
+			binary: "awww",
 			versionF: func() string {
-				out, err := runner.Output("swww", "--version")
+				out, err := runner.Output("awww", "--version")
 				if err != nil {
 					return ""
 				}

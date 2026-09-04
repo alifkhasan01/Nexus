@@ -9,4 +9,4 @@ Responsibilities:
 - optional randomization
 - backend integration
 
-Potential backends include swww, awww or other Wayland-compatible wallpaper systems.
+Potential backends include awww or other Wayland-compatible wallpaper systems.
