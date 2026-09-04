@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alifkhansen01/Nexus/cli/internal/runner"
-	"github.com/alifkhansen01/Nexus/cli/internal/ui"
+	"github.com/alifkhasan01/Nexus/cli/internal/runner"
+	"github.com/alifkhasan01/Nexus/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
 

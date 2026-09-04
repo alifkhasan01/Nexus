@@ -79,7 +79,7 @@ export PATH="$HOME/go/bin:$PATH"
 **From source:**
 
 ```bash
-git clone https://github.com/alifkhansen01/Nexus.git
+git clone https://github.com/alifkhasan01/Nexus.git
 cd Nexus/cli
 go build -o nexus ./cmd/nexus/
 sudo mv nexus /usr/local/bin/

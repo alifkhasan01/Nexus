@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/alifkhansen01/Nexus/cli/internal/project"
-	"github.com/alifkhansen01/Nexus/cli/internal/runner"
-	"github.com/alifkhansen01/Nexus/cli/internal/ui"
+	"github.com/alifkhasan01/Nexus/cli/internal/project"
+	"github.com/alifkhasan01/Nexus/cli/internal/runner"
+	"github.com/alifkhasan01/Nexus/cli/internal/ui"
 )
 
 // Options controls how the project is compiled.

@@ -6,9 +6,9 @@ import (
 	"runtime"
 	"strconv"
 
-	internalbuild "github.com/alifkhansen01/Nexus/cli/internal/build"
-	"github.com/alifkhansen01/Nexus/cli/internal/project"
-	"github.com/alifkhansen01/Nexus/cli/internal/ui"
+	internalbuild "github.com/alifkhasan01/Nexus/cli/internal/build"
+	"github.com/alifkhasan01/Nexus/cli/internal/project"
+	"github.com/alifkhasan01/Nexus/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
 
