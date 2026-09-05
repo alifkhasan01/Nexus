@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const cliModulePath = "github.com/alifkhasan01/nexus/cli/cmd/nexus"
+const cliModulePath = "github.com/alifkhasan01/nexus/cli/cmd/nexusctl"
 
 var (
 	upgradeShell  bool
@@ -173,14 +173,14 @@ func runUpgrade(_ *cobra.Command, _ []string) error {
 // It checks GOBIN, then GOPATH/bin, then ~/go/bin.
 func resolveInstalledBin() string {
 	if gobin := os.Getenv("GOBIN"); gobin != "" {
-		return filepath.Join(gobin, "nexus")
+		return filepath.Join(gobin, "nexusctl")
 	}
 	if out, err := exec.Command("go", "env", "GOPATH").Output(); err == nil {
 		gopath := strings.TrimSpace(string(out))
 		if gopath != "" {
-			return filepath.Join(gopath, "bin", "nexus")
+			return filepath.Join(gopath, "bin", "nexusctl")
 		}
 	}
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "go", "bin", "nexus")
+	return filepath.Join(home, "go", "bin", "nexusctl")
 }

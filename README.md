@@ -62,12 +62,12 @@ Nexus sits on top of your Wayland compositor (Hyprland, Niri, Sway, etc.) and pr
 
 ## Installing the CLI
 
-The `nexus` CLI handles building, running, and watching the project. Install it once, then use it for everything.
+The `nexusctl` CLI handles building, running, and watching the project. Install it once, then use it for everything.
 
 **Via `go install` (recommended):**
 
 ```bash
-go install github.com/alifkhasan01/nexus/cli/cmd/nexus@latest
+go install github.com/alifkhasan01/nexus/cli/cmd/nexusctl@latest
 ```
 
 The binary is placed in `$GOPATH/bin` (usually `~/go/bin`). Make sure that directory is in your `$PATH`:
@@ -81,8 +81,8 @@ export PATH="$HOME/go/bin:$PATH"
 ```bash
 git clone https://github.com/alifkhasan01/nexus.git
 cd Nexus/cli
-go build -o nexus ./cmd/nexus/
-sudo mv nexus /usr/local/bin/
+go build -o nexusctl ./cmd/nexusctl/
+sudo mv nexusctl /usr/local/bin/
 ```
 
 **Verify:**
@@ -103,7 +103,7 @@ This probes for cmake, Qt6, compiler, QuickShell, awww, grim, and other tools �
 
 ## Setup (one-shot install)
 
-`nexus setup` clones the repository, builds the project, and installs the binary + QML
+`nexusctl setup` clones the repository, builds the project, and installs the binary + QML
 assets — no manual `git clone` needed.
 
 ```bash
@@ -151,7 +151,7 @@ nexus
 
 Add this export to your shell profile (`~/.bashrc`, `~/.zshrc`, `~/.config/fish/config.fish`) or compositor autostart script for persistent use.
 
-To update Nexus to the latest version, just run `nexus setup` again — it will pull the latest changes and rebuild automatically. Use `--reinstall` for a clean slate.
+To update Nexus to the latest version, just run `nexusctl setup` again — it will pull the latest changes and rebuild automatically. Use `--reinstall` for a clean slate.
 
 ---
 
@@ -184,7 +184,7 @@ cmake --build build --parallel
 
 ## Development Workflow
 
-`nexus dev` is the main command for day-to-day development. It builds the project, launches it, and watches for file changes:
+`nexusctl dev` is the main command for day-to-day development. It builds the project, launches it, and watches for file changes:
 
 ```bash
 nexus dev
@@ -238,31 +238,31 @@ This removes the `build/` directory entirely, forcing a full reconfigure on the 
 
 | Command | Description |
 |---|---|
-| `nexus setup` | Clone, build, and install Nexus in one shot |
-| `nexus setup --repo <url>` | Setup from a custom fork |
-| `nexus setup --branch <name>` | Setup from a specific branch |
-| `nexus setup --reinstall` | Wipe existing clone and start fresh |
-| `nexus setup --release` | Setup with a Release build |
-| `nexus upgrade` | Upgrade the CLI to latest version |
-| `nexus upgrade --shell` | Upgrade CLI + pull + rebuild + reinstall shell |
-| `nexus check` | Check all build and runtime dependencies |
-| `nexus build` | Configure (if needed) and compile |
-| `nexus build --release` | Optimised release build |
-| `nexus build -j N` | Build with N parallel jobs |
-| `nexus build --verbose` | Show full compiler output |
-| `nexus build --no-configure` | Skip cmake configure step |
-| `nexus dev` | Build + run + hot-reload watcher |
-| `nexus dev --skip-build` | Skip initial build step |
-| `nexus dev --no-watch` | Run without file watcher |
-| `nexus dev --release` | Dev loop with Release build type |
-| `nexus dev -j N` | Limit parallel jobs during rebuilds |
-| `nexus dev --verbose` | Verbose output during rebuilds |
-| `nexus run` | Launch the compiled shell |
-| `nexus install` | Install binary to `~/.local/bin` |
-| `nexus install --prefix /usr` | Install to a custom prefix |
-| `nexus install --copy-only` | Copy binary only, skip cmake --install |
-| `nexus clean` | Remove build directory |
-| `nexus clean --force` | Remove without confirmation |
+| `nexusctl setup` | Clone, build, and install Nexus in one shot |
+| `nexusctl setup --repo <url>` | Setup from a custom fork |
+| `nexusctl setup --branch <name>` | Setup from a specific branch |
+| `nexusctl setup --reinstall` | Wipe existing clone and start fresh |
+| `nexusctl setup --release` | Setup with a Release build |
+| `nexusctl upgrade` | Upgrade the CLI to latest version |
+| `nexusctl upgrade --shell` | Upgrade CLI + pull + rebuild + reinstall shell |
+| `nexusctl check` | Check all build and runtime dependencies |
+| `nexusctl build` | Configure (if needed) and compile |
+| `nexusctl build --release` | Optimised release build |
+| `nexusctl build -j N` | Build with N parallel jobs |
+| `nexusctl build --verbose` | Show full compiler output |
+| `nexusctl build --no-configure` | Skip cmake configure step |
+| `nexusctl dev` | Build + run + hot-reload watcher |
+| `nexusctl dev --skip-build` | Skip initial build step |
+| `nexusctl dev --no-watch` | Run without file watcher |
+| `nexusctl dev --release` | Dev loop with Release build type |
+| `nexusctl dev -j N` | Limit parallel jobs during rebuilds |
+| `nexusctl dev --verbose` | Verbose output during rebuilds |
+| `nexusctl run` | Launch the compiled shell |
+| `nexusctl install` | Install binary to `~/.local/bin` |
+| `nexusctl install --prefix /usr` | Install to a custom prefix |
+| `nexusctl install --copy-only` | Copy binary only, skip cmake --install |
+| `nexusctl clean` | Remove build directory |
+| `nexusctl clean --force` | Remove without confirmation |
 
 ---
 

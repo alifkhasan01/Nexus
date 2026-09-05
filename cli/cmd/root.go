@@ -13,9 +13,9 @@ func (s SilentError) Error() string { return s.Cause.Error() }
 func (s SilentError) Unwrap() error { return s.Cause }
 
 var rootCmd = &cobra.Command{
-	Use:   "nexus",
+	Use:   "nexusctl",
 	Short: "Nexus shell developer CLI",
-	Long: `nexus — developer tooling for the Nexus Wayland desktop shell.
+	Long: `nexusctl — developer tooling for the Nexus Wayland desktop shell.
 
 Commands:
   setup    Install Nexus from scratch (clone + build + install)
