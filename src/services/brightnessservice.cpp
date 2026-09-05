@@ -116,7 +116,7 @@ void BrightnessService::decrease(int step)
     applyBrightness(m_brightness - step);
 }
 
-void BrightnessService::setPercent(real p)
+void BrightnessService::setPercent(qreal p)
 {
     applyBrightness(static_cast<int>(p * m_maxBrightness));
 }

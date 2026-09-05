@@ -90,7 +90,7 @@ PanelWindow {
                 onMoveDown:    resultsView.moveSelection(1)
                 onMoveUp:      resultsView.moveSelection(-1)
                 onConfirm:     resultsView.launchSelected()
-                onEscape:      root.close()
+                onDismissed:   root.close()
             }
 
             // Divider

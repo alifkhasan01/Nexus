@@ -15,7 +15,7 @@ class BrightnessService : public QObject
 
     Q_PROPERTY(int  brightness    READ brightness    WRITE setBrightness    NOTIFY brightnessChanged)
     Q_PROPERTY(int  maxBrightness READ maxBrightness                        NOTIFY maxBrightnessChanged)
-    Q_PROPERTY(real percent       READ percent                               NOTIFY brightnessChanged)
+    Q_PROPERTY(qreal percent      READ percent                               NOTIFY brightnessChanged)
 
 public:
     explicit BrightnessService(QObject *parent = nullptr);
@@ -23,9 +23,9 @@ public:
 
     int  brightness()    const { return m_brightness; }
     int  maxBrightness() const { return m_maxBrightness; }
-    real percent()       const {
+    qreal percent()      const {
         return m_maxBrightness > 0
-            ? static_cast<real>(m_brightness) / m_maxBrightness
+            ? static_cast<qreal>(m_brightness) / m_maxBrightness
             : 0.0;
     }
 
@@ -34,7 +34,7 @@ public:
 public slots:
     Q_INVOKABLE void increase(int step = 10);
     Q_INVOKABLE void decrease(int step = 10);
-    Q_INVOKABLE void setPercent(real p);
+    Q_INVOKABLE void setPercent(qreal p);
 
 signals:
     void brightnessChanged();

@@ -18,6 +18,8 @@ var rootCmd = &cobra.Command{
 	Long: `nexus — developer tooling for the Nexus Wayland desktop shell.
 
 Commands:
+  setup    Install Nexus from scratch (clone + build + install)
+  upgrade  Upgrade the nexus CLI (and optionally the shell)
   check    Verify all build dependencies are present
   build    Configure and compile the project
   clean    Remove the build directory

@@ -9,11 +9,10 @@ Item {
 
     property alias text: input.text
 
-    signal textChanged(string text)
     signal moveDown()
     signal moveUp()
     signal confirm()
-    signal escape()
+    signal dismissed()
 
     implicitHeight: 52
     implicitWidth:  parent.width
@@ -58,9 +57,9 @@ Item {
             Keys.onDownPressed:   root.moveDown()
             Keys.onUpPressed:     root.moveUp()
             Keys.onReturnPressed: root.confirm()
-            Keys.onEscapePressed: root.escape()
+            Keys.onEscapePressed: root.dismissed()
 
-            onTextChanged: root.textChanged(text)
+            onTextChanged: {} // textChanged signal is auto-emitted by the alias property
         }
 
         // Clear button

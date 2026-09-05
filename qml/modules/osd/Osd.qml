@@ -13,9 +13,9 @@ PanelWindow {
     id: root
 
     required property var    screen
-    required property string type:   ""   // "volume" | "brightness" | "mic"
-    required property real   value:  0.0  // 0.0–1.0 (or 0–1.5 for volume up to 150%)
-    required property bool   muted:  false
+    required property string type    // "volume" | "brightness" | "mic"
+    required property real   value   // 0.0–1.0 (or 0–1.5 for volume up to 150%)
+    required property bool   muted
     property bool            visible: false
 
     WlrLayershell.layer:              WlrLayer.Overlay

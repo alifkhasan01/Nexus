@@ -101,6 +101,51 @@ This probes for cmake, Qt6, compiler, QuickShell, awww, grim, and other tools �
 
 ---
 
+## Setup (one-shot install)
+
+`nexus setup` clones the repository, builds the project, and installs the binary + QML
+assets — no manual `git clone` needed.
+
+```bash
+nexus setup
+```
+
+What it does, step by step:
+
+1. Clones the repo into `$XDG_DATA_HOME/nexus/source` (default: `~/.local/share/nexus/source`)
+2. Runs a full CMake configure + build (Debug by default)
+3. Copies the compiled binary to `~/.local/bin/nexus`
+4. Copies the QML assets to `$XDG_DATA_HOME/nexus/qml`
+
+**Options:**
+
+```bash
+# Use a specific branch or fork
+nexus setup --branch dev
+nexus setup --repo https://github.com/yourfork/nexus.git
+
+# Release build
+nexus setup --release
+
+# Limit parallel jobs
+nexus setup -j4
+
+# Reinstall cleanly (wipes existing clone first)
+nexus setup --reinstall
+
+# Skip build — only clone + install QML assets
+nexus setup --skip-build
+
+# Custom binary install prefix (default: ~/.local)
+nexus setup --prefix /usr/local
+```
+
+If `~/.local/bin` is not in your `$PATH`, the command will print a reminder with the exact line to add to your shell profile.
+
+To update Nexus to the latest version, just run `nexus setup` again — it will pull the latest changes and rebuild automatically. Use `--reinstall` for a clean slate.
+
+---
+
 ## Building
 
 ```bash
@@ -184,6 +229,13 @@ This removes the `build/` directory entirely, forcing a full reconfigure on the 
 
 | Command | Description |
 |---|---|
+| `nexus setup` | Clone, build, and install Nexus in one shot |
+| `nexus setup --repo <url>` | Setup from a custom fork |
+| `nexus setup --branch <name>` | Setup from a specific branch |
+| `nexus setup --reinstall` | Wipe existing clone and start fresh |
+| `nexus setup --release` | Setup with a Release build |
+| `nexus upgrade` | Upgrade the CLI to latest version |
+| `nexus upgrade --shell` | Upgrade CLI + pull + rebuild + reinstall shell |
 | `nexus check` | Check all build and runtime dependencies |
 | `nexus build` | Configure (if needed) and compile |
 | `nexus build --release` | Optimised release build |
