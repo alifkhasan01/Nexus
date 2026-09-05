@@ -142,6 +142,15 @@ nexus setup --prefix /usr/local
 
 If `~/.local/bin` is not in your `$PATH`, the command will print a reminder with the exact line to add to your shell profile.
 
+**Important:** After setup, you need to set `QML2_IMPORT_PATH` before running nexus:
+
+```bash
+export QML2_IMPORT_PATH="$HOME/.local/share/nexus/qml-plugin"
+nexus
+```
+
+Add this export to your shell profile (`~/.bashrc`, `~/.zshrc`, `~/.config/fish/config.fish`) or compositor autostart script for persistent use.
+
 To update Nexus to the latest version, just run `nexus setup` again — it will pull the latest changes and rebuild automatically. Use `--reinstall` for a clean slate.
 
 ---

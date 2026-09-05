@@ -145,9 +145,18 @@ func runUpgrade(_ *cobra.Command, _ []string) error {
 		}
 		fmt.Println()
 
+		// Install QML plugin
+		pluginLibDir := filepath.Join(dataHome, "nexus", "qml-plugin")
+		ui.Step("Installing QML plugin…")
+		if err := installer.CopyQmlPlugin(buildDir, pluginLibDir); err != nil {
+			return fmt.Errorf("QML plugin install failed: %w", err)
+		}
+		fmt.Println()
+
 		ui.Success("Shell upgraded")
 		ui.Label("Binary", filepath.Join(binDir, "nexus"))
 		ui.Label("QML assets", qmlDest)
+		ui.Label("QML plugin", pluginLibDir)
 		fmt.Println()
 	}
 

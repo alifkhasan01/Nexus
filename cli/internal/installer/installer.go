@@ -98,6 +98,43 @@ func CopyQML(srcRoot, destDir string) error {
 	return nil
 }
 
+// CopyQmlPlugin copies the QML plugin library and qmldir from build/ to the
+// runtime lib directory so Qt can load the Nexus QML module.
+func CopyQmlPlugin(srcBuildDir, destLibDir string) error {
+	pluginSrc := filepath.Join(srcBuildDir, "libnexus_qmlplugin.so")
+	qmldirSrc := filepath.Join(srcBuildDir, "qmldir")
+
+	if !fileExists(pluginSrc) {
+		return fmt.Errorf("QML plugin not found at %s", pluginSrc)
+	}
+	if !fileExists(qmldirSrc) {
+		return fmt.Errorf("qmldir not found at %s", qmldirSrc)
+	}
+
+	// Create destination: $XDG_DATA_HOME/nexus/qml-plugin/Nexus/
+	pluginDestDir := filepath.Join(destLibDir, "Nexus")
+	if err := os.MkdirAll(pluginDestDir, 0o755); err != nil {
+		return fmt.Errorf("could not create plugin directory: %w", err)
+	}
+
+	ui.Info("Installing QML plugin → %s", pluginDestDir)
+
+	// Copy .so
+	pluginDest := filepath.Join(pluginDestDir, "libnexus_qmlplugin.so")
+	if err := copyFile(pluginSrc, pluginDest); err != nil {
+		return fmt.Errorf("plugin copy failed: %w", err)
+	}
+
+	// Copy qmldir
+	qmldirDest := filepath.Join(pluginDestDir, "qmldir")
+	if err := copyFile(qmldirSrc, qmldirDest); err != nil {
+		return fmt.Errorf("qmldir copy failed: %w", err)
+	}
+
+	ui.Success("QML plugin installed")
+	return nil
+}
+
 // CopyBinary copies the compiled binary from srcBin to destDir/nexus atomically.
 func CopyBinary(srcBin, destDir string) error {
 	if err := os.MkdirAll(destDir, 0o755); err != nil {
@@ -151,6 +188,11 @@ func DataHome() string {
 func dirExists(path string) bool {
 	fi, err := os.Stat(path)
 	return err == nil && fi.IsDir()
+}
+
+func fileExists(path string) bool {
+	fi, err := os.Stat(path)
+	return err == nil && !fi.IsDir()
 }
 
 // copyDir recursively copies src directory to dst, preserving file modes.

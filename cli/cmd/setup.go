@@ -129,11 +129,20 @@ func runSetup(_ *cobra.Command, _ []string) error {
 	}
 	fmt.Println()
 
+	// ── Step 5: Install QML plugin ────────────────────────────────────────────
+	pluginLibDir := filepath.Join(dataHome, "nexus", "qml-plugin")
+	ui.Step("Installing QML plugin…")
+	if err := installer.CopyQmlPlugin(filepath.Join(cloneDir, "build"), pluginLibDir); err != nil {
+		return fmt.Errorf("QML plugin install failed: %w", err)
+	}
+	fmt.Println()
+
 	// ── Done ──────────────────────────────────────────────────────────────────
 	ui.Success("Nexus setup complete!")
 	fmt.Println()
 	ui.Label("Binary", filepath.Join(binDir, "nexus"))
 	ui.Label("QML assets", qmlDest)
+	ui.Label("QML plugin", pluginLibDir)
 	ui.Label("Source", cloneDir)
 	fmt.Println()
 
@@ -152,6 +161,11 @@ func runSetup(_ *cobra.Command, _ []string) error {
 		fmt.Println()
 	}
 
-	ui.Info("Run 'nexus run' to launch the shell, or add it to your compositor autostart.")
+	// QML2_IMPORT_PATH hint
+	ui.Info("To run nexus, set QML2_IMPORT_PATH:")
+	ui.Info(`  export QML2_IMPORT_PATH="%s"`, pluginLibDir)
+	ui.Info(`  nexus`)
+	fmt.Println()
+	ui.Info("Or add to your compositor autostart / shell profile for persistent use.")
 	return nil
 }
